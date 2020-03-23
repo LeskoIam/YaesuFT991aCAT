@@ -10,12 +10,13 @@ import serial
 
 from ft991a_config import Ft991aConfig
 
-HM_FILE = "hm.txt"
+
 COMMANDS_CSV = "commands.csv"
 DEBUG = False
 
 
 def parse_raw_command_data():
+    HM_FILE = "archive/hm.txt"
     with open(HM_FILE, "r") as hmf:
         data = hmf.read()
 
