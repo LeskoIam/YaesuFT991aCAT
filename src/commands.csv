@@ -1,0 +1,92 @@
+command,description,set,read,answer
+AB,Vfo-A To Vfo-B,1,0,0
+AC,Antenna Tuner Control,1,1,1
+AG,Af Gain,1,1,1
+AI,Auto Information,1,1,1
+AM,Vfo-A To Memory Channel,1,0,0
+BA,Vfo-B To Vfo-A,1,0,0
+BC,Auto Notch,1,1,1
+BD,Band Down,1,0,0
+BI,Break-In,1,1,1
+BP,Manual Notch,1,1,1
+BS,Band Select,1,0,0
+BU,Band Up,1,0,0
+BY,Busy,0,1,1
+CH,Channel Up/Down,1,0,0
+CN,Ctcss Number,1,1,1
+CO,Contour,1,1,1
+CS,Cw Spot,1,1,1
+CT,Ctcss,1,1,1
+DA,Dimmer,1,1,1
+DN,Down,1,0,0
+DT,Date And Time,1,1,1
+ED,Encorder Down,1,0,0
+EK,Ent Key,1,0,0
+EU,Encorder Up,1,0,0
+EX,Menu,1,1,1
+FA,Frequency Vfo-A,1,1,1
+FB,Frequency Vfo-B,1,1,1
+FS,Fast Step,1,1,1
+FT,Function Tx,1,1,1
+GT,Agc Function,1,1,1
+ID,Identification,0,1,1
+IF,Information,0,1,1
+IS,If-Shift,1,1,1
+KM,Keyer Memory,1,1,1
+KP,Key Pitch,1,1,1
+KR,Keyer,1,1,1
+KS,Key Speed,1,1,1
+KY,Cw Keying,1,0,0
+LK,Lock,1,1,1
+LM,Load Messege,1,1,1
+MA,Memory Channel To Vfo-A,1,0,0
+MC,Memory Channel,1,1,1
+MD,Mode,1,1,1
+MG,Mic Gain,1,1,1
+ML,Monitor Level,1,1,1
+MR,Memory Read,0,1,1
+MS,Meter Sw,1,1,1
+MT,MEMORY CHANNEL WRITE/TAG,1,1,1
+MW,Memory Write,1,0,0
+MX,Mox Set,1,1,1
+NA,Narrow,1,1,1
+NB,Noise Blanker,1,1,1
+NL,Noise Blanker Level,1,1,1
+NR,Noise Reduction,1,1,1
+OI,Opposite Band Information,0,1,1
+OS,Offset (Repeatershift),1,1,1
+PA,Pre-Amp (Ipo),1,1,1
+PB,Play Back,1,1,1
+PC,Power Control,1,1,1
+PL,Speech Processor Level,1,1,1
+PR,Speech Processor,1,1,1
+PS,Power Switch,1,1,1
+QI,Qmb Store,1,0,0
+QR,Qmb Recall,1,0,0
+QS,Quick Split,1,0,0
+RA,Rf Attenuator,1,1,1
+RC,Clar Clear,1,0,0
+RD,Clar Down,1,0,0
+RG,Rf Gain,1,1,1
+RI,Radio Information,0,1,1
+RL,Noise Reduction Level,1,1,1
+RM,Read Meter,0,1,1
+RS,Radio Status,0,1,1
+RT,Clar,1,1,1
+RU,Clar Up,1,0,0
+SC,Scan,1,1,1
+SD,Semi Break-In Delay Time,1,1,1
+SH,Width,1,1,1
+SM,S Meter,0,1,1
+SQ,Squelch Level,1,1,1
+SV,Swap Vfo,1,0,0
+TS,Txw,1,1,1
+TX,Tx Set,1,1,1
+UL,Unlock,0,1,1
+UP,Up,1,0,0
+VD,Vox Delay Time,1,1,1
+VG,Vox Gain,1,1,1
+VM,[V/M] Key Function,1,0,0
+VX,Vox,1,1,1
+XT,Tx Clar,1,1,1
+ZI,Zero In,1,0,0

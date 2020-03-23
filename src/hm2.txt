@@ -1,0 +1,67 @@
+AB	VFO-A TO VFO-B
+Set	1	2	3	4	5	6	7	8	9	10
+	A	B	;
+Read	1	2	3	4	5	6	7	8	9	10
+
+Answer	1	2	3	4	5	6	7	8	9	10
+
+
+AC	ANTENNA TUNER CONTROL
+Set	1	2	3	4	5	6	7	8	9	10	P1  0: Fixed	P3 0: Tuner “OFF” P2  0: Fixed		1: Tuner “ON”   2: Tuning Start
+	A	C	P1	P2	P3	;
+Read	1	2	3	4	5	6	7	8	9	10
+	A	C	;
+Answer	1	2	3	4	5	6	7	8	9	10
+	A	C	P1	P2	P3	;
+
+
+AG	AF GAIN
+Set	1	2	3	4	5	6	7	8	9	10	P1 0: Fixed P2 000 - 255
+	A	G	P1	P2	P2	P2	;
+Read	1	2	3	4	5	6	7	8	9	10
+	A	G	P1	;
+Answer	1	2	3	4	5	6	7	8	9	10
+	A	G	P1	P2	P2	P2	;
+
+
+AI	AUTO INFORMATION
+Set	1	2	3	4	5	6	7	8	9	10	P1 0: Auto Information “OFF” 1: Auto Information “ON”   This parameter is set to “0” (OFF) automatically when the transceiver is turned “OFF”.
+	A	I	P1	;
+Read	1	2	3	4	5	6	7	8	9	10
+	A	I	;
+Answer	1	2	3	4	5	6	7	8	9	10
+	A	I	P1	;
+
+
+AM	VFO-A TO MEMORY CHANNEL
+Set	1	2	3	4	5	6	7	8	9	10
+	A	M	;
+Read	1	2	3	4	5	6	7	8	9	10
+
+Answer	1	2	3	4	5	6	7	8	9	10
+
+
+BA	VFO-B TO VFO-A
+Set	1	2	3	4	5	6	7	8	9	10
+	B	A	;
+Read	1	2	3	4	5	6	7	8	9	10
+
+Answer	1	2	3	4	5	6	7	8	9	10
+
+
+BC	AUTO NOTCH
+Set	1	2	3	4	5	6	7	8	9	10	P1 0: Fixed P2 0: Auto Notch “OFF” 1: Auto Notch “ON”
+	B	C	P1	P2	;
+Read	1	2	3	4	5	6	7	8	9	10
+	B	C	P1	;
+Answer	1	2	3	4	5	6	7	8	9	10
+	B	C	P1	P2	;
+
+
+BD	BAND DOWN
+Set	1	2	3	4	5	6	7	8	9	10	P1 0: Fixed
+	B	D	P1	;
+Read	1	2	3	4	5	6	7	8	9	10
+
+Answer	1	2	3	4	5	6	7	8	9	10
+
