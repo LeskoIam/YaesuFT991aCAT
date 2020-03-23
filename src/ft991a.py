@@ -134,7 +134,6 @@ class Ft991a:
 
     def __ser_send(self, command):
         self.ser.reset_input_buffer()
-        s = command.encode("utf-8")
         if DEBUG:
             print(f"RAW SEND: {command}")
         self.ser.write(command.encode("utf-8"))
@@ -339,7 +338,7 @@ class Ft991a:
     def read_manual_notch_level(self) -> int:
         """Read manual-notch frequency.
 
-        :return: manual-notch frequency in hertz
+        :return: manual-notch frequency in Hz
         """
         ans = self.__send_command("BP", parameter="01")
         return int(ans[-3:]) * 10
