@@ -35,7 +35,6 @@ The DT Gain defaults to 50!   This will overdrive the rigs modulator which will 
 """
 
 ft = Ft991a("COM3", 38400)
-ft.open_serial()
 
 read_menu_settings = [32, 33, 62, 64, 65, 66, 68, 70, 71, 72]
 write_menu_settings = [(32, "1"),
@@ -54,54 +53,42 @@ write_other_settings = ["MD0C;", "AG0000;",
                         "NA00;",
                         "SH020", "PC008;"]
 
-for ms in read_menu_settings:
-    print(ft.debug_send(f"EX{ms:0>3};"))
-    time.sleep(0.5)
 
-for os in read_other_settings:
-    print(ft.debug_send(os))
-    time.sleep(0.5)
+def read_original_settings():
+    print("Reading original settings ...")
+    with open("original.dat", "w") as original_file:
+        for ms in read_menu_settings:
+            print(ft.debug_send(f"EX{ms:0>3};"))
+            s = ft.debug_send(f"EX{ms:0>3};")
+            original_file.write(f"{s}\n")
+
+        for os in read_other_settings:
+            print(ft.debug_send(os))
+            original_file.write(f"{ft.debug_send(os)}\n")
+    print("Reading original settings ... DONE")
 
 
-print("Setup FT8 settings")
-for ms, param in write_menu_settings:
-    ft.debug_send(f"EX{ms:0>3}{param};")
-    time.sleep(0.5)
+def to_ft8():
+    print("Configuring FT8 ...")
+    for ms, param in write_menu_settings:
+        ft.debug_send(f"EX{ms:0>3}{param};")
 
-for os in write_other_settings:
-    ft.debug_send(os)
-    time.sleep(0.5)
+    for os in write_other_settings:
+        ft.debug_send(os)
+    print("Configuring FT8 ... DONE")
 
-print("Setting up FT8 done...")
-time.sleep(5)
 
-a = """
-EX0321;
-EX0331;
-EX0621;
-EX064+1500;
-EX065+1500;
-EX06600;
-EX06800;
-EX0701;
-EX0711;
-EX0721;
-MD02;
-FA014230900;
-AG0000;
-NA00;
-SH014;
-PC100;
-"""
+def restore_original():
+    print("Restoring original settings ...")
+    with open("original.dat", "r") as original_file:
+        commands = original_file.read().split("\n")
+        for command in commands:
+            print(command)
+            ft.debug_send(command)
+    print("Restoring original settings ... DONE")
 
-print("Restoring...")
-for com in a.split("\n"):
-    com = com.strip()
-    if not com.endswith(";"):
-        continue
-    print(com)
-    ft.debug_send(com)
-    time.sleep(0.5)
+
+ft.open_serial()
 
 
 ft.close_serial()
