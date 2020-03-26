@@ -28,17 +28,26 @@ ft.open_serial()
 # ft.power_on()
 # time.sleep(5)
 
-ft.debug_send("MC021;")
-ft.set_squelch_level(15)
-time.sleep(2)
-print(ft.read_squelch())
-ft.debug_send("MC001;")
-ft.debug_send("SC1;")
-
+# ft.debug_send("MC021;")
+# ft.set_squelch_level(15)
+# ft.list_memory()
+# ft.list_menu_settings()
+#
+# time.sleep(2)
+# print(ft.read_squelch())
+# ft.debug_send("MC001;")
+# ft.debug_send("SC1;")
+#
+# time.sleep(10)
+# ft.debug_send("SC0;")
+# time.sleep(10)
+# ft.power_off()
 
 # print(ft.read_smeter())
 # print(ft.read_tx_state())
 
+# old: 2
+print(ft.debug_send("EX007;"))
 
 
 

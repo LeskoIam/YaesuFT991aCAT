@@ -9,6 +9,7 @@ from typing import Optional, Union
 import serial
 
 from ft991a_config import Ft991aConfig
+from menu import Menu
 
 
 COMMANDS_CSV = "commands.csv"
@@ -16,8 +17,8 @@ DEBUG = False
 
 
 def parse_raw_command_data():
-    HM_FILE = "archive/hm.txt"
-    with open(HM_FILE, "r") as hmf:
+    hm_file = "archive/hm.txt"
+    with open(hm_file, "r") as hmf:
         data = hmf.read()
 
     data = data.split("\n")
@@ -83,7 +84,7 @@ class Ft991aCommand:
 
 
 def load_commands_to_objects():
-    with open("commands.csv", "r") as cf:
+    with open(r"D:\Lesko\workspace\ham\Yaesu991aCAT\src\commands.csv", "r") as cf:
         data = cf.read()
 
     data = data.split("\n")
@@ -117,6 +118,8 @@ class Ft991a:
         self.serial_port = serial_port
         self.baud_rate = baud_rate
 
+        self.function_menu = Menu()
+
         self.ser: Optional[serial.Serial] = None
         self.connected: bool = False
 
@@ -131,42 +134,35 @@ class Ft991a:
     def close_serial(self):
         if self.connected:
             self.ser.close()
+            self.connected = False
 
-    def __ser_send(self, command):
+    def __ser_send(self, command, raw=False):
         self.ser.reset_input_buffer()
-        if DEBUG:
-            print(f"RAW SEND: {command}")
         self.ser.write(command.encode("utf-8"))
         self.ser.flush()
 
         time.sleep(0.1)
         if self.ser.in_waiting:
             recv_str = self.ser.read(self.ser.in_waiting).decode("utf-8")
-            if DEBUG:
-                print(f"RAW RECV: {recv_str}")
             # Read answer if it was returned
             m = re.search(fr"^{command[:2]}([\d+\-A-Za-z ]*);", recv_str)
             if m:
-                ans = m.group(1)
-                if DEBUG:
-                    print(f"RECV: {repr(ans)}")
-                return ans
+                if raw:
+                    return m.group(0)
+                return m.group(1)
             # Check for error
             else:
                 m = re.match(r"^\?;", recv_str)
             if m:
-                if DEBUG:
-                    print(f"ERROR: Command '{command}' returned error '{recv_str}'")
-                else:
-                    raise MalformedResponse(f"Command '{command}' returned error '{recv_str}'")
+                raise MalformedResponse(f"Command '{command}' returned error '{recv_str}'.")
+            else:
+                raise MalformedResponse(f"Command '{command}' returned unknown response '{recv_str}'.")
         # Command without answer
         else:
-            if DEBUG:
-                print("NO RECV")
             return None
 
     def debug_send(self, command):
-        return self.__ser_send(command)
+        return self.__ser_send(command, raw=True)
 
     def __get_command(self, command):
         if command in self.COMMANDS:
@@ -177,7 +173,7 @@ class Ft991a:
         return self.__ser_send(self.__get_command(command).get(parameter))
 
     @staticmethod
-    def __parse_frequency(freq: str):
+    def __parse_frequency(freq: Union[str, int]) -> str:
 
         suffixes = Ft991aConfig.frequency_suffixes
         if isinstance(freq, str):
@@ -186,11 +182,17 @@ class Ft991a:
                 s = f"{int(float(freq[:-1]) * suffixes[suffix]):0>9}"
                 if len(s) > 9:
                     raise ParseFrequencyError("Maximum supported freq exceeded.")
-                return f"{int(float(freq[:-1]) * suffixes[suffix]):0>9}"
+                return s
             else:
                 raise ParseFrequencyError(f"No unit suffix '{suffix}'.")
+        elif isinstance(freq, int):
+            # Assume Hz
+            s = f"{freq:0>9}"
+            if len(s) > 9:
+                raise ParseFrequencyError("Maximum supported freq exceeded.")
+            return s
         else:
-            ParseFrequencyError("Frequency must be string.")
+            raise ParseFrequencyError("Frequency must be string.")
 
     def vfoa_to_vfob(self):
         """Copies VFO-B frequency and data to VFO-A.
@@ -308,7 +310,7 @@ class Ft991a:
         state = 1 if on else 0
         return self.__send_command("BI", parameter=f"{state}")
 
-    def read_break_in_on(self) -> bool:
+    def is_break_in_on(self) -> bool:
         """Read current state of break-in.
 
         :return: state of auto-notch
@@ -370,7 +372,19 @@ class Ft991a:
                     break
             else:
                 raise ParameterError(f"No band entry for '{band}'")
+        else:
+            raise ParameterError("Band must be int or str.")
         return self.__send_command("BS", parameter=f"{band_num:0>2}")
+
+    def read_menu_function(self, num):
+        command = "EX"
+        param = self.function_menu.get_menu_function(num).read_command()
+        return self.__send_command(command, parameter=param)
+
+    def write_menu_function(self, num, param):
+        command = "EX"
+        param = self.function_menu.get_menu_function(num).format_param(param)
+        return self.__send_command(command, parameter=param)
 
     def is_rx_busy(self) -> bool:
         """IS RX busy (is squelch opened)?
@@ -423,6 +437,8 @@ class Ft991a:
         :param operation_mode: operational mode [simplex, plus shift, minus shift]
         """
 
+        # TODO: implement checks for inputs
+
         frequency = self.__parse_frequency(frequency)
         clar_offset_dir = "+" if clar_offset >= 0 else "-"
         rx_clar = "1" if rx_clar else "0"
@@ -435,10 +451,12 @@ class Ft991a:
         s = f"{channel:0>3}{frequency}{clar_offset_dir}{clar_offset:0>4}{rx_clar}{tx_clar}{mode}0{ctcss}00{operation_mode}0{tag: <12}"
         self.__send_command("MT", parameter=s)
 
-    def read_memory_channel(self, channel: int):
+    def read_memory_channel(self, channel: int, raw=False):
         """Read currently saved settings for given channel.
 
         :param channel: channel, between 0 - 117
+        :param raw: if true it will return data in a form
+                    ready to be written back into memory with self.write_memory_channel(**)
         :return: namedtuple ChannelInfo [channel: int .......... 0 - 117
                                          frequency: int ........ frequency in Hz
                                          clar_offset: int ...... 0 - 9999 Hz
@@ -449,13 +467,14 @@ class Ft991a:
                                          ctcss: bool/str ....... off/'CTCSS ENC/DEC'/'CTCSS ENC'
                                          operation_mode: str ... simplex or +/-
                                          tag: str .............. tag up to 12 characters long (ASCII)]
+        :return: dict refer to raw parameter documentation
         """
         ChannelInfo = namedtuple("ChannelInfo",
                                  "channel frequency clar_offset rx_clar tx_clar "
                                  "mode memory_mode ctcss operation_mode tag")
         try:
             ans = self.__send_command("MT", parameter=f"{channel:0>3}")
-        except MalformedResponse as exc:
+        except MalformedResponse:
             return ChannelInfo(*[None]*10)
 
         ch_info = ChannelInfo(
@@ -470,6 +489,10 @@ class Ft991a:
             operation_mode=Ft991aConfig.operation_modes[ans[24]],
             tag=ans[-12:].strip()
         )
+        if raw:
+            write_fields = ("channel", "frequency", "mode", "tag", "clar_offset",
+                            "rx_clar", "tx_clar", "ctcss", "operation_mode")
+            return {field: ch_info.__getattribute__(field) for field in ch_info._fields if field in write_fields}
         return ch_info
 
     def power_on(self):
@@ -547,7 +570,7 @@ class Ft991a:
 
     def list_memory(self):
         for ch in range(1, 118):
-            print(self.read_memory_channel(ch))
+            print(self.read_memory_channel(ch, raw=True))
 
 
 if __name__ == '__main__':
@@ -569,9 +592,68 @@ if __name__ == '__main__':
         ft.write_memory_channel(21, frequency="144.300M", mode="USB", tag="CQ SSB")
         ft.write_memory_channel(22, frequency="145.325M", mode="FM", tag="V26 S51SLO")
 
+    def save_current_settings():
+        s_t = time.time()
+        all_settings = []
+        for _, command in ft.COMMANDS.items():
+            if command.allow_set == "1" and command.allow_read == "1":
+                suffix = ""
+                if command.command in "AG BC CT GT IS NA NB NL NR OS PA RA RG RL SH SM SQ".split(" "):
+                    suffix = "0"
+                elif command.command == "EX":
+                    print("Menu...")
+                    for item in range(1, 154):
+                        s = f"EX{item:0>3};"
+                        ans = ft.debug_send(s)
+                        all_settings.append(ans)
+                    continue
+                if command.command in "BP CN CO DT KM LM MD ML MR MT OI PB PR RI RM".split(" "):
+                    print(f"Skipping command {command} ...")
+                    continue
+                s = f"{command.command}{suffix};"
+                ans = ft.debug_send(s)
+                all_settings.append(ans)
+        print("Memory...")
+        for item in range(1, 118):
+            s = f"MT{item:0>3};"
+            try:
+                ans = ft.debug_send(s)
+            except MalformedResponse:
+                continue
+            all_settings.append(ans)
 
-    # ft.list_memory()
-    # write_repeaters_to_memory()
-    # ft.debug_send("SC1;")
+        tit = time.time() - s_t
+        print(f"It took {tit}sec to read {len(all_settings)} settings, that is {len(all_settings)/tit} settings/sec")
+        print(all_settings)
+
+        with open("last_settings.dat", "w") as s_file:
+            for setting in all_settings:
+                s_file.write(f"{setting}\n")
+
+
+    def load_settings_dat(dat_name):
+        with open(dat_name, "r") as dat_file:
+            all_settings = dat_file.read()
+        all_settings = all_settings.split("\n")
+        for setting in all_settings:
+            if setting in "EX0313; EX087G0O4Y; FT0; PS;".split(" "):
+                print(f"Skipping {setting}")
+                continue
+            try:
+                ft.debug_send(setting)
+            except MalformedResponse as err:
+                print(f"Error {setting} - {err}")
+
+
+
+
+    # save_current_settings()
+    # load_settings_dat("last_settings.dat")
+
+    # print(ft.read_menu_function(13))
+    # ft.write_menu_function(13, 1)
+    # print(ft.read_menu_function(13))
+    # ft.write_menu_function(13, 0)
+    # print(ft.read_menu_function(13))
 
     ft.close_serial()
