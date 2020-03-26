@@ -121,20 +121,16 @@ class Ft991a:
         self.function_menu = Menu()
 
         self.ser: Optional[serial.Serial] = None
-        self.connected: bool = False
 
     def open_serial(self):
-        if not self.connected:
-            self.ser = serial.Serial(self.serial_port, self.baud_rate)
+        print(f"Opening serial <{self.serial_port} {self.baud_rate}>")
+        self.ser = serial.Serial(self.serial_port, self.baud_rate)
         if not self.ser.is_open:
-            print(f"Opening serial <{self.serial_port} {self.baud_rate}>")
-            self.connected = True
             self.ser.open()
 
     def close_serial(self):
-        if self.connected:
+        if self.ser.is_open:
             self.ser.close()
-            self.connected = False
 
     def __ser_send(self, command, raw=False):
         self.ser.reset_input_buffer()
