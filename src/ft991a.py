@@ -588,6 +588,8 @@ if __name__ == '__main__':
         ft.write_memory_channel(21, frequency="144.300M", mode="USB", tag="CQ SSB")
         ft.write_memory_channel(22, frequency="145.325M", mode="FM", tag="V26 S51SLO")
 
+        ft.write_memory_channel(40, frequency="438.925M", mode="FM", operation_mode="-", tag="Krvavec")  # Krvavec S55UK
+
     def save_current_settings():
         s_t = time.time()
         all_settings = []
@@ -641,10 +643,9 @@ if __name__ == '__main__':
                 print(f"Error {setting} - {err}")
 
 
-
-
-    # save_current_settings()
+    save_current_settings()
     # load_settings_dat("last_settings.dat")
+    # write_repeaters_to_memory()
 
     # print(ft.read_menu_function(13))
     # ft.write_menu_function(13, 1)
