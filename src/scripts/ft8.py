@@ -40,6 +40,8 @@ DT Gain:  6   *** IMPORTANT ***
 The DT Gain defaults to 50!   This will overdrive the rigs modulator which will cause unwanted audio harmonics.  Not good.  Turn the DT Gain setting down to about 4, and start working your way back up, watching for ALC on the meter as well as the power out that you want.  As you move the DT Gain setting back up (higher), you will see your power level increase as well as ALC levels.  Find the happy medium of NO ALC showing on the meter.   Excessive ALC indication is a sign that the audio drive is too high and distortion is most likely happening.
 """
 
+__VERSION__ = "1.0.0"
+
 read_menu_settings = [32, 33, 62, 64, 65, 66, 68, 70, 71, 72]
 write_menu_settings = [(32, "1"),
                        (33, "1"),
@@ -96,11 +98,12 @@ def restore_original(ser, restore_file="original.dat"):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Set Yaesu FT-991A for FT8. You can also save configuration "
-                                                 "before and restore it after you are done with FT8")
+    parser = argparse.ArgumentParser(description=f"Set Yaesu FT-991A for FT8. You can also save configuration "
+                                                 f"before and restore it after you are done with FT8."
+                                                 f"Version {__VERSION__}")
     parser.add_argument("com_port", help="COM port on which FT991A is connected", type=str)
-    parser.add_argument("action", choices=["save", "ft8", "restore"], help="r: read and save, ft8: configure for FT8,"
-                                                                           " o: restore original")
+    parser.add_argument("action", choices=["save", "ft8", "restore"], help="r: read and save, ft8: configure for FT8, "
+                                                                           "o: restore original")
     parser.add_argument("-b", "--baud", type=int, default=38400, help="Set baud rate - defaults to 38400")
     parser.add_argument("-f", "--file", type=str, default="original.dat", help="File to save to or read from - "
                                                                                "defaults to 'origimal.dat'")
