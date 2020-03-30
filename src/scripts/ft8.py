@@ -107,7 +107,8 @@ def main():
     parser.add_argument("-b", "--baud", type=int, default=38400, help="Set baud rate - defaults to 38400")
     parser.add_argument("-f", "--file", type=str, default="original.dat", help="File to save to or read from - "
                                                                                "defaults to 'origimal.dat'")
-    parser.add_argument("-p", "--power", type=str, default=50, help="Output power level to set - defaults to 50W")
+    parser.add_argument("-p", "--power", type=str, default=8, help="Output power level to set - defaults to 8W")
+    parser.add_argument("-t", "--tune", action="store_true", default=False, help="Tune on ft8 middle frequency (14.073M)")
     args = parser.parse_args()
 
     ft = Ft991a(args.com_port, args.baud)
@@ -116,10 +117,13 @@ def main():
     if args.action == "save":
         read_original_settings(ft, save_file=args.file)
     elif args.action == "ft8":
+        if args.action == "save":
+            read_original_settings(ft, save_file=args.file)
         to_ft8(ft)
         time.sleep(1)
-        ft.set_vfo("14.073M", "A")
-        ft.antenna_tuner_ctrl("TUNE", wait_complete=True)
+        if args.tune:
+            ft.set_vfo("14.073M", "A")
+            ft.antenna_tuner_ctrl("TUNE", wait_complete=True)
         ft.set_vfo("14.074M", "A")
         ft.debug_send(f"PC{args.power:0>3};")
     elif args.action == "restore":
