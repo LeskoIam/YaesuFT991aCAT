@@ -40,7 +40,7 @@ DT Gain:  6   *** IMPORTANT ***
 The DT Gain defaults to 50!   This will overdrive the rigs modulator which will cause unwanted audio harmonics.  Not good.  Turn the DT Gain setting down to about 4, and start working your way back up, watching for ALC on the meter as well as the power out that you want.  As you move the DT Gain setting back up (higher), you will see your power level increase as well as ALC levels.  Find the happy medium of NO ALC showing on the meter.   Excessive ALC indication is a sign that the audio drive is too high and distortion is most likely happening.
 """
 
-__VERSION__ = "1.0.0"
+__VERSION__ = "1.0.1b"
 
 read_menu_settings = [32, 33, 62, 64, 65, 66, 68, 70, 71, 72]
 write_menu_settings = [(32, "1"),
