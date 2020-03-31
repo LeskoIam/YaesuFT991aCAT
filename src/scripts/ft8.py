@@ -99,7 +99,7 @@ def restore_original(ser, restore_file="original.dat"):
 
 def main():
     parser = argparse.ArgumentParser(description=f"Set Yaesu FT-991A for FT8. You can also save configuration "
-                                                 f"before and restore it after you are done with FT8."
+                                                 f"before and restore it after you are done with FT8. "
                                                  f"Version {__VERSION__}")
     parser.add_argument("com_port", help="COM port on which FT991A is connected", type=str)
     parser.add_argument("action", choices=["save", "ft8", "restore"], help="r: read and save, ft8: configure for FT8, "
