@@ -88,3 +88,14 @@ class Ft991aConfig:
     }
 
     r_tx_state = {val: key for key, val in tx_state.items()}
+
+    meter_reading = {
+        "3": "COMP",
+        "4": "ALC",
+        "5": "PO",
+        "6": "SWR",
+        "7": "ID",
+        "8": "VDD",
+    }
+
+    r_meter_reading = {val: key for key, val in meter_reading.items()}

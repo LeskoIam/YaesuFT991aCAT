@@ -417,6 +417,21 @@ class Ft991a:
         command = "FA" if ab == "A" else "FB"
         return int(self.__send_command(command))
 
+    def set_mic_gain(self, mic_gain: int):
+        """Set microphone gain.
+
+        :param mic_gain: microphone gain to set, between 0 - 100
+        :return: None
+        """
+        return self.__send_command("MG", parameter=f"{mic_gain:0>3}")
+
+    def read_mic_gain(self):
+        """Read currently set microphone gain.
+
+        :return: microphone gain, between 0 - 100
+        """
+        return int(self.__send_command("MG"))
+
     def write_memory_channel(self, channel: int, frequency: str, mode: str, tag: str = " "*12, clar_offset: int = 0,
                              rx_clar=False, tx_clar=False, ctcss=False, operation_mode="simplex"):
         """Save to internal memory.
@@ -491,6 +506,20 @@ class Ft991a:
             return {field: ch_info.__getattribute__(field) for field in ch_info._fields if field in write_fields}
         return ch_info
 
+    def set_output_rf_power(self, power: int):
+        """Set output RF power.
+
+        :param power: RF power, between 5 - 100W
+        """
+        self.__send_command("PC", parameter=f"{power:0>3}")
+
+    def read_output_rf_power(self):
+        """Read currently set output power.
+
+        :return: set power in W
+        """
+        return int(self.__send_command("PC"))
+
     def power_on(self):
         """Power transceiver on.
 
@@ -509,6 +538,60 @@ class Ft991a:
         :return: None
         """
         return self.__send_command("PS", parameter="0")
+
+    def __read_meter(self, meter: str):
+        command = Ft991aConfig.r_meter_reading[meter]
+        ans = self.__send_command("RM", parameter=command)
+        return int(ans[-3:])
+
+    def read_meter_compression(self):
+        """Read meter - compression.
+        Speech processor compression level.
+
+        :return: 0 - 255
+        """
+        return self.__read_meter("COMP")
+
+    def read_meter_alc(self):
+        """Read meter - ALC.
+        Automatic level control voltage.
+
+        :return: 0 - 255
+        """
+        return self.__read_meter("ALC")
+
+    def read_meter_power(self):
+        """Read meter - power.
+        Transmitter output power.
+
+        :return: 0 - 255
+        """
+        return self.__read_meter("PO")
+
+    def read_meter_swr(self):
+        """Read meter - SWR. Standing wave ratio.
+        Antenna matching state.
+
+        :return: 0 - 255
+        """
+        return self.__read_meter("SWR")
+
+    def read_meter_id(self):
+        """Read meter - ID.
+        Drain current of the final stage FET transistor.
+
+        :return: 0 - 255
+        """
+        return self.__read_meter("ID")
+
+    def read_meter_vdd(self):
+        """Read meter - VDD.
+        Drain voltage of the final stage amplifier.
+        The proper voltage is 13.8V
+
+        :return: 0 - 255
+        """
+        return self.__read_meter("VDD")
 
     def read_smeter(self) -> int:
         """Read current S-meter reading.
